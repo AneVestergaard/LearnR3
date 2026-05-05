@@ -10,24 +10,15 @@ Setup i chincs fortæller at denne køres hver gang
 ```{r setup}
 library(tidyverse)
 library(here)
-library(snakecase)
+source(here("R/functions.R"))
 ```
 
 
 ## Importing new data
 
 ```{r}
+#| eval: false 
 here("data-raw/nurses-stress/stress/5C/5C_1586886626/HR.csv.gz") %>%
-  read_csv(
-    show_col_types = FALSE,
-    name_repair = to_snake_case,
-    n_max = 100
-  )
-```
-
-## Exercise: Reading other files
-```{r}
-here("data-raw/nurses-stress/stress/6B/6B_1587569373/EDA.csv.gz") |>
   read_csv(
     show_col_types = FALSE,
     name_repair = to_snake_case,
@@ -39,6 +30,7 @@ here("data-raw/nurses-stress/stress/6B/6B_1587569373/EDA.csv.gz") |>
 ## Create my first function and documentation of it
 
 ```{r}
+#| eval: false 
 #' Add two numbers together.
 #'
 #' @param num1 A number here.
@@ -54,6 +46,9 @@ add_numbers <- function(num1, num2) {
 
 
 ```{r}
+#| eval: false
+#| output: false #bliver ikke printet i html
+#|
 #' Read in one nurses' stress data file.
 #'
 #' @param file_path A path to a datafile
@@ -73,32 +68,7 @@ read <- function(file_path) {
 
 
 ```{r}
-here("data-raw/nurses-stress/stress/5C/5C_1586886626/HR.csv.gz") %>%
-  read()
-```
-
-```{r}
-here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") %>%
-  read()
-```
-
-
-```{r}
-#' Read in one nurses' stress file but read different number of rows (if using function without specifying it will load 100 rows)
-#'
-#' @param file_path A path to a datafile
-#'
-#' @returns outputs a dataframe/ tibble
-
-read <- function(file_path, max_rows = 100) {
-  data <- file_path |>
-    readr::read_csv(
-      show_col_types = FALSE,
-      name_repair = snakecase::to_snake_case,
-      n_max = max_rows
-    )
-  return(data)
-}
+#| eval: false 
 
 # Outputs only 100 rows
 here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") |>
@@ -111,4 +81,6 @@ here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") |>
 # Outputs all rows (`Inf` means infinity)
 here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") |>
   read(max_rows = Inf)
+
+
 ```
