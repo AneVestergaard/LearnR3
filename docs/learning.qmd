@@ -95,3 +95,26 @@ hr_data <- hr_files %>%
   map(read) %>% # OBS no brackets
   list_rbind(names_to = "file_path_id")
 ```
+
+##Exercise: Convert map to function and use on sleep
+```{r}
+#| eval: false
+
+#' Read in all files
+#'
+#' @param filename
+#'
+#' @returns outputs a dataframe
+
+read_all <- function(filename) {
+  files <- here::here("data-raw/nurses-stress/") %>%
+    fs::dir_ls(regexp = filename, recurse = TRUE)
+
+  data <- files %>%
+    purrr::map(read) %>%
+    purrr::list_rbind(names_to = "file_path_id")
+  return(data)
+}
+
+read_all("HR.csv.gz")
+```
