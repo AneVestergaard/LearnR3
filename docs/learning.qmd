@@ -11,13 +11,14 @@ Setup i chincs fortæller at denne køres hver gang
 library(tidyverse)
 library(here)
 source(here("R/functions.R"))
+library(fs)
 ```
 
 
 ## Importing new data
 
 ```{r}
-#| eval: false 
+#| eval: false
 here("data-raw/nurses-stress/stress/5C/5C_1586886626/HR.csv.gz") %>%
   read_csv(
     show_col_types = FALSE,
@@ -30,7 +31,7 @@ here("data-raw/nurses-stress/stress/5C/5C_1586886626/HR.csv.gz") %>%
 ## Create my first function and documentation of it
 
 ```{r}
-#| eval: false 
+#| eval: false
 #' Add two numbers together.
 #'
 #' @param num1 A number here.
@@ -68,7 +69,7 @@ read <- function(file_path) {
 
 
 ```{r}
-#| eval: false 
+#| eval: false
 
 # Outputs only 100 rows
 here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") |>
@@ -81,6 +82,16 @@ here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") |>
 # Outputs all rows (`Inf` means infinity)
 here("data-raw/nurses-stress/stress/5C/5C_1586886712/HR.csv.gz") |>
   read(max_rows = Inf)
+```
 
+##Using map 
+```{r}
+hr_files <- here("data-raw/nurses-stress/") %>%
+  dir_ls(regexp = "HR.csv.gz", recurse = TRUE) # dir_ls giver liste af filer inden for folder. Recurse giver adgang til alle foldere inden for angivne folder
 
+hr_files
+
+hr_data <- hr_files %>%
+  map(read) %>% # OBS no brackets
+  list_rbind(names_to = "file_path_id")
 ```
