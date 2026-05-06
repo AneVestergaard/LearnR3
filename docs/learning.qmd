@@ -96,11 +96,12 @@ hr_data <- hr_files %>%
   list_rbind(names_to = "file_path_id")
 ```
 
+
 ##Exercise: Convert map to function and use on sleep
 ```{r}
 #| eval: false
 
-#' Read in all files
+#' Read in all files at once
 #'
 #' @param filename
 #'
@@ -117,4 +118,60 @@ read_all <- function(filename) {
 }
 
 read_all("HR.csv.gz")
+```
+
+
+## Inspecting the data
+```{r}
+#| eval: false
+hr_data <- read_all("HR.csv.gz")
+
+survey_data <- here("data-raw/nurses-stress/survey-results.csv.gz") |>
+  read_csv(
+    show_col_types = FALSE,
+    name_repair = to_snake_case
+  )
+
+hr_data
+survey_data
+```
+
+## Extract ID
+```{r}
+hr_data %>%
+  mutate(
+    id = str_extract(
+      file_path_id,
+      pattern = "/stress/[:alnum:]{2}/"
+    ) %>%
+      str_remove("/stress/") %>% str_remove("/"),
+    .before = file_path_id
+  ) %>%
+  select(-file_path_id)
+```
+
+
+##Convert get-ID-code to a function
+```{r}
+#' Get ID code from file_path_id
+#'
+#' @param data
+#'
+#' @returns outputs a dataframe
+
+get_participant_id <- function(data) {
+  data <- data %>%
+    dplyr::mutate(
+      id = stringr::str_extract(
+        file_path_id,
+        pattern = "/stress/[:alnum:]{2}/"
+      ) %>%
+        stringr::str_remove("/stress/") %>% str_remove("/"),
+      .before = file_path_id
+    ) %>%
+    dplyr::select(-file_path_id)
+  return(data)
+}
+
+get_participant_id(hr_data)
 ```
