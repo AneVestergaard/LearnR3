@@ -14,3 +14,14 @@ read <- function(file_path, max_rows = 100) {
     )
   return(data)
 }
+
+
+read_all <- function(filename) {
+  files <- here::here("data-raw/nurses-stress/") %>%
+    fs::dir_ls(regexp = "HR.csv.gz", recurse = TRUE)
+
+  data <- files %>%
+    purrr::map(read) %>%
+    purrr:list_rbind(names_to = "file_path_id")
+  return(data)
+}
