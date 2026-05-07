@@ -51,9 +51,25 @@ eda_data <- read_all("EDA.csv.gz") |>
 ## Process survey data
 ```{r}
 survey_tidy <- here::here("data-raw/nurses-stress/survey-results.csv.gz") %>%
-  read() %>% 
+  read() %>%
   tidy_survey_dates()
 
 survey_long <- survey_tidy %>%
   survey_to_long()
+
+survey_long
+```
+
+
+## Joining datasets
+```{r}
+nurses_stress <- survey_long %>%
+  full_join(survey_tidy) %>%
+  full_join(hr_data) %>%
+  full_join(ibi_data) %>%
+  full_join(temp_data) %>%
+  full_join(bvp_data) %>%
+  full_join(eda_data) %>%
+  arrange(id, collection_datetime) %>%
+  view()
 ```

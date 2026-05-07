@@ -15,6 +15,11 @@ read <- function(file_path, max_rows = 100) {
   return(data)
 }
 
+#' Read in all files at once
+#'
+#' @param filename
+#'
+#' @returns outputs a dataframe
 
 read_all <- function(filename) {
   files <- here::here("data-raw/nurses-stress/") |>
@@ -98,5 +103,6 @@ survey_to_long <- function(data) {
                                               by = 60
     )) %>%
     dplyr::ungroup()
-  return(survey_to_long)
+  return(longer)
 }
+
