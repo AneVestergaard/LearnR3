@@ -12,8 +12,6 @@ library(tidyverse)
 library(here)
 source(here("R/functions.R"))
 library(fs)
-
-library(snakecase)
 ```
 
 
@@ -221,24 +219,84 @@ hr_data %>%
 
 ## 
 ```{r}
-#' Function to calculate summary statistics for collumns 
+#' Function to calculate summary statistics for collumns
 #'
-#' @param data 
+#' @param data
 #'
 #' @returns a datatable
 
 summarise_by_datetime <- function(data) {
   summarised_data <- data %>%
-  dplyr::mutate(collection_datetime = lubridate::round_date(collection_datetime,
-    unit = "minute"
-  )) %>%
-  dplyr::summarise(
-    across(tidyselect::where(is.numeric), list(mean = mean, sd = sd, median = median)),
-    .by = c(id, collection_datetime)
-  )
+    dplyr::mutate(collection_datetime = lubridate::round_date(collection_datetime,
+      unit = "minute"
+    )) %>%
+    dplyr::summarise(
+      across(tidyselect::where(is.numeric), list(mean = mean, sd = sd, median = median)),
+      .by = c(id, collection_datetime)
+    )
   return(summarised_data)
 }
 
 summarise_by_datetime(hr_data)
 ```
 
+
+## Pivot longer
+
+```{r}
+survey_data <- here("data-raw/nurses-stress/survey-results.csv.gz") %>%
+  read()
+
+survey_data
+```
+
+
+```{r}
+survey_tidy <- survey_data %>%
+  mutate(
+    date = mdy(date),
+    start_datetime = as_datetime(paste(date, start_time)),
+    end_datetime = as_datetime(paste(date, end_time)),
+    datetime_id = start_datetime,
+    .before = start_time
+  ) %>%
+  select(-c(date, start_time, end_time, duration))
+```
+
+
+```{r}
+survey_tidy %>%
+  select(id, , datetime_id, start_datetime, end_datetime) %>%
+  pivot_longer(c(start_datetime, end_datetime), names_to = NULL, values_to = "collection_datetime") %>%
+  group_by(pick(-collection_datetime)) %>%
+  complete(collection_datetime = seq(min(collection_datetime),
+    max(collection_datetime),
+    by = 60
+  )) %>%
+  ungroup()
+```
+
+
+## Create a function on survey_tidy + survey_long
+```{r}
+#' Tidy up the dates in the survey results
+#'
+#' @param dataframe of the survey results data
+#'
+#' @returns. A data frame
+
+tidy_survey_dates <- function(data) {
+  tidied <- data %>%
+    dplyr::mutate(
+      date = mdy(date),
+      start_datetime = lubridate::as_datetime(paste(date, start_time)),
+      end_datetime = lubridate::as_datetime(paste(date, end_time)),
+      datetime_id = start_datetime,
+      .before = start_time
+    ) %>%
+    dplyr::select(-c(date, start_time, end_time, duration))
+  return(tidied)
+}
+
+
+```
