@@ -266,7 +266,7 @@ survey_tidy <- survey_data %>%
 
 ```{r}
 survey_tidy %>%
-  select(id, , datetime_id, start_datetime, end_datetime) %>%
+  select(id, datetime_id, start_datetime, end_datetime) %>%
   pivot_longer(c(start_datetime, end_datetime), names_to = NULL, values_to = "collection_datetime") %>%
   group_by(pick(-collection_datetime)) %>%
   complete(collection_datetime = seq(min(collection_datetime),
@@ -277,7 +277,7 @@ survey_tidy %>%
 ```
 
 
-## Create a function on survey_tidy + survey_long
+## Create a function on survey_tidy 
 ```{r}
 #' Tidy up the dates in the survey results
 #'
@@ -297,6 +297,27 @@ tidy_survey_dates <- function(data) {
     dplyr::select(-c(date, start_time, end_time, duration))
   return(tidied)
 }
+```
 
 
+## Create a function to pivoting survey data into longer format 
+```{r}
+#' Pivoting survey results to longer format
+#'
+#' @param dataframe of survey results data
+#'
+#' @returns. A data frame
+
+survey_to_long <- function(data) {
+  longer <- data %>%
+    dplyr::select(id, datetime_id, start_datetime, end_datetime) %>%
+    tidyr::pivot_longer(c(start_datetime, end_datetime), names_to = NULL, values_to = "collection_datetime") %>%
+    dplyr::group_by(pick(-collection_datetime)) %>%
+    tidyr::complete(collection_datetime = seq(min(collection_datetime),
+      max(collection_datetime),
+      by = 60
+    )) %>%
+    dplyr::ungroup()
+  return(survey_to_long)
+}
 ```
